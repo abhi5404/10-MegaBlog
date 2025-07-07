@@ -12,7 +12,6 @@ export default function PostForm({ post }) {
         handleSubmit,
         watch,
         setValue,
-        control,
         getValues,
     } = useForm({
         defaultValues: {
@@ -27,11 +26,17 @@ export default function PostForm({ post }) {
     const userData = useSelector((state) => state.auth.userData);
 
     const submit = async (data) => {
+        if (!userData) {
+            alert("User not authenticated. Please log in again.");
+            navigate("/login");
+            return;
+        }
+
         try {
             let file;
             if (data.image?.[0]) {
                 file = await appwriteService.uploadFile(data.image[0]);
-                if (post && post.FeaturedImage_03) {
+                if (post?.FeaturedImage_03) {
                     await appwriteService.deleteFile(post.FeaturedImage_03);
                 }
             }
@@ -53,6 +58,7 @@ export default function PostForm({ post }) {
             }
         } catch (error) {
             console.error("Error submitting post:", error);
+            alert("Something went wrong while submitting the post.");
         }
     };
 
@@ -104,7 +110,7 @@ export default function PostForm({ post }) {
                         Content :
                     </label>
                     <Editor
-                        apiKey="gjm3bc1sss0qpsqee69queb8ma0r7l25079wwdmpzfaf2i21"
+                        apiKey="o7f4ha8a4zaggnrzvct0vhjjhvv9qfpq3kxrw1nlmfw4bmw0"
                         initialValue={getValues("content")}
                         onEditorChange={(content) =>
                             setValue("content", content)
@@ -118,7 +124,10 @@ export default function PostForm({ post }) {
                                 "insertdatetime media table paste code help wordcount",
                             ],
                             toolbar:
-                                "undo redo | styleselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons | help",
+                                "undo redo | styleselect | bold italic backcolor | " +
+                                "alignleft aligncenter alignright alignjustify | " +
+                                "bullist numlist outdent indent | link image | " +
+                                "print preview media fullpage | forecolor backcolor emoticons | help",
                         }}
                     />
                 </div>
@@ -137,6 +146,10 @@ export default function PostForm({ post }) {
                             src={appwriteService.getFilePreview(post.FeaturedImage_03)}
                             alt={post.Title_01}
                             className="rounded-lg"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "https://via.placeholder.com/300x200?text=Image+Not+Found";
+                            }}
                         />
                     </div>
                 )}
@@ -157,5 +170,6 @@ export default function PostForm({ post }) {
         </form>
     );
 }
+
 
 

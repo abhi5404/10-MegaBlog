@@ -1,21 +1,17 @@
 import { Client, Databases, Storage, ID } from "appwrite";
 
-// ✅ Appwrite client setup
 const client = new Client()
     .setEndpoint(import.meta.env.VITE_APPWRITE_URL)
     .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
 
-// ✅ Appwrite services
 const databases = new Databases(client);
 const storage = new Storage(client);
 
-// ✅ Your IDs from .env
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 const COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 const BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID;
 
 const appwriteService = {
-    // ✅ Create post
     createPost: async (postData) => {
         try {
             return await databases.createDocument(
@@ -30,7 +26,6 @@ const appwriteService = {
         }
     },
 
-    // ✅ Update post
     updatePost: async (postId, postData) => {
         try {
             return await databases.updateDocument(
@@ -45,7 +40,6 @@ const appwriteService = {
         }
     },
 
-    // ✅ Delete post
     deletePost: async (postId) => {
         try {
             return await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, postId);
@@ -55,7 +49,6 @@ const appwriteService = {
         }
     },
 
-    // ✅ 🔥 This was missing before
     getPosts: async () => {
         try {
             return await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
@@ -65,7 +58,6 @@ const appwriteService = {
         }
     },
 
-    // ✅ Get single post
     getPostById: async (postId) => {
         try {
             return await databases.getDocument(DATABASE_ID, COLLECTION_ID, postId);
@@ -75,7 +67,6 @@ const appwriteService = {
         }
     },
 
-    // ✅ Upload file to storage
     uploadFile: async (file) => {
         try {
             return await storage.createFile(BUCKET_ID, ID.unique(), file);
@@ -85,7 +76,6 @@ const appwriteService = {
         }
     },
 
-    // ✅ Delete file from storage
     deleteFile: async (fileId) => {
         try {
             return await storage.deleteFile(BUCKET_ID, fileId);
@@ -94,13 +84,14 @@ const appwriteService = {
         }
     },
 
-    // ✅ Get file preview
+    // ✅ CHANGED: Use getFileView() instead of getFilePreview()
     getFilePreview: (fileId) => {
-        return storage.getFilePreview(BUCKET_ID, fileId);
+        return storage.getFileView(BUCKET_ID, fileId); // more reliable
     }
 };
 
 export default appwriteService;
+
 
 
 
